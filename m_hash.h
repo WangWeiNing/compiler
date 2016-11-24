@@ -21,7 +21,4 @@ void* hash_look(m_hash *hash, int key);
 void hash_rem(m_hash *hash, int key);
 int get_hash(m_hash *hash, int number);
 
-
-
-
 #endif
