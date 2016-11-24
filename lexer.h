@@ -2,7 +2,8 @@
 #define LEXER
 #define NUMBER 100
 #define WORD 101
-
+#define ISDIGIT(N) (N >= '0' && N <= '9')
+#define ISLETTER(N) ((N >= 'a' && N <= 'z') || (N >= 'A' && N <= 'Z'))
 typedef struct token_
 {
 	void *context;
