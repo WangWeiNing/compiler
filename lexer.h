@@ -6,6 +6,7 @@
 #define ID 257
 #define TRUE 258
 #define FALSE 259
+#define FLOAT 260
 
 #define ISDIGIT(N) (N >= '0' && N <= '9')
 #define ISLETTER(N) ((N >= 'a' && N <= 'z') || (N >= 'A' && N <= 'Z'))

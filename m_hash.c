@@ -21,7 +21,7 @@ void* hash_look(m_hash *hash, int key)
 
 	lnode *node = NULL;
 	hnode *d = NULL;
-	if(LCOUNT(table) > 1)
+	if(LCOUNT(table) > 0)
 		for(node = LHEAD(table); node != NULL; node = list_nxt(node))
 		{
 			d = (hnode *)(node->data);
@@ -29,7 +29,7 @@ void* hash_look(m_hash *hash, int key)
 				return d->data;
 		}
 	else
-		return ((hnode *)(LHEAD(table)->data))->data;
+		return NULL;
 }
 
 void hash_int(m_hash *hash, int key, void *data)
