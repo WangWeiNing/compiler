@@ -1,23 +1,27 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "lexer.h"
 #include "m_hash.h"
 
-token* m_scan();
 char peek;
 int line;
 m_hash* words;
 
+char next();
+char prev();
+token* m_scan();
 int strhash(m_hash* hash, char* str);
+void init_keyword();
 
 int main()
 {
+
 	line = 0;
 	words = (m_hash*)malloc(sizeof(m_hash));
 	hash_init(words, 31);
-	char* trueWord = "true";
-	hash_int(words, strhash(words, trueWord), trueWord);
+	init_keyword();
 	peek = getchar();
 	token* t = m_scan();
 	printf("Tag %d\n", t->tag);
@@ -50,8 +54,26 @@ token* m_scan()
 			break;
 	}
 
+	if(peek == '/')
+	{
+		printf("2");
+		if((peek = getchar()) == '/')
+		{
+			for(; ; peek = getchar())
+				if(peek == '\n')
+				{
+					peek = getchar();
+					break;
+				}else
+					continue;
+		}else
+			lseek(0, -1, SEEK_CUR);
+	}
+	printf("3");
+
 	if(ISDIGIT(peek))
 	{
+		printf("4");
 		int *v = malloc(sizeof(int));
 		*v = 0;
 		do
@@ -61,8 +83,8 @@ token* m_scan()
 		}while(ISDIGIT(peek));
 		token *number = (token*)malloc(sizeof(token));
 		number->context = v;
-		number->proc = &proc_number;
-		number->tag = NUMBER;
+		number->proc = &proc_num;
+		number->tag = NUM;
 		return number;
 	}
 	if(ISLETTER(peek))
@@ -77,30 +99,49 @@ token* m_scan()
 			i++;
 		}while(ISLETTER(peek));
 
-		void* keyword;
-		if((keyword = hash_look(words, strhash(words, temp))) != NULL)
+		int* keyword;
+		if((keyword = (int*)hash_look(words, strhash(words, temp))) != NULL)
 		{
 			token *word = (token*)malloc(sizeof(token));
 			word->context = keyword;
 			word->proc = &proc_word;
-			word->tag = KEYWORD;
+			word->tag = *keyword;
 			return word;
 		}
 		token *word = (token*)malloc(sizeof(token));
+		hash_int(words, strhash(words, temp), ID);
 		word->context = temp;
 		word->proc = &proc_word;
-		word->tag = WORD;
+		word->tag = ID;
 		return word;
 	}
 
 	token *symbol = (token*)malloc(sizeof(token));
+	memset(symbol, 0, sizeof(token));
 	symbol->context = &peek;
-	symbol->proc = &proc_symbol;
-	symbol->tag = SYMBOL;
+	symbol->proc = &proc_id;
+	symbol->tag = peek;
 	peek = ' ';
 	return symbol;
 }
 
-void proc_number(void* context){}
+
+void init_keyword()
+{
+	token* trueK = (token*)malloc(sizeof(token));
+	trueK->tag = TRUE;
+	trueK->context = "true";
+	trueK->proc = &proc_id;
+	hash_int(words, strhash(words, "false"), &trueK);
+
+	token* falseK = (token*)malloc(sizeof(token));
+	falseK->tag = FALSE;
+	falseK->context = "false";
+	falseK->proc = &proc_id;
+	hash_int(words, strhash(words, "false"), &falseK);
+}
+
+
+void proc_num(void* context){}
 void proc_word(void* context){}
-void proc_symbol(void* context){}
+void proc_id(void* context){}
